@@ -1,30 +1,30 @@
 from aocd import data
 from aocd import submit
+from functools import cache
 import re
 
-memo = {}
+def blink(stone):
+    if stone == 0:
+        return (1, None)
 
+    s = str(stone)
+    n = len(s)
+
+    if n % 2 == 1:
+        return (stone * 2024, None)
+
+    return (int(s[:n // 2]), int(s[n // 2:]))
+
+@cache
 def get_stones_after(stone, blinks):
-    key = (stone, blinks)
+    count = 1
 
-    if key not in memo:
-        count = 1
+    for b in range(blinks, 0, -1):
+        stone, new_stone = blink(stone)
+        if new_stone is not None:
+            count += get_stones_after(new_stone, b - 1)
 
-        for b in range(blinks, 0, -1):
-            if stone == 0:
-                stone = 1
-            else:
-                str_s = str(stone)
-                len_s = len(str_s)
-                if len_s & 1 == 1:
-                    stone *= 2024
-                else:
-                    stone = int(str_s[:len_s // 2])
-                    count += get_stones_after(int(str_s[len_s // 2:]), b - 1)
-
-        memo[key] = count
-
-    return memo[key]
+    return count
 
 stones = list(map(int, re.findall(r'\d+', data)))
 submit(sum(map(lambda s: get_stones_after(s, 25), stones)), part='a')
