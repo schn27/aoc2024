@@ -19,19 +19,14 @@ def get_safety_factor(robots):
 
     return n1 * n2 * n3 * n4
 
-def get_dist(robots):
-    dist = 0
-
-    for i in range(len(robots) // 8 - 1):
-        for j in range(i + 1, len(robots) // 8):
-            r1, r2 = robots[i], robots[j]
-            dist += abs(r1[0] - r2[0]) + abs(r1[1] - r2[1])
-
-    return dist
+def get_var(robots):
+    values = list(map(lambda e: e[0] + e[1], robots))
+    mean = sum(values) / len(robots)
+    return sum(map(lambda v: (v - mean) ** 2, values)) / len(robots)
 
 robots = list(map(lambda e: list(map(int, re.findall(r'-?\d+', e))), data.split('\n')))
 
-min_dist = get_dist(robots)
+min_var = get_var(robots)
 part2 = 0
 
 for t in range(1, 10000):
@@ -42,9 +37,9 @@ for t in range(1, 10000):
     if (t == 100):
         part1 = get_safety_factor(robots)
 
-    dist = get_dist(robots)
-    if dist < min_dist:
-        min_dist = dist
+    var = get_var(robots)
+    if var < min_var:
+        min_var = var
         part2 = t
 
 submit(part1, part='a')
